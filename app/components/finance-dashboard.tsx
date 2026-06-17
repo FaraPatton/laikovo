@@ -32,7 +32,7 @@ import {
 } from "@/app/lib/finance-types";
 import { formatDate, formatRub } from "@/app/lib/format";
 
-const chartColors = ["#3f6f5d", "#c07a28", "#4f6fa8", "#8c6d4a", "#7c8b3f"];
+const chartColors = ["#70e1b8", "#f6b860", "#83b7ff", "#c79cff", "#f07588"];
 
 const emptyForm: ExpenseInput = {
   date: new Date().toISOString().slice(0, 10),
@@ -160,6 +160,133 @@ export default function FinanceDashboard() {
 
   return (
     <div className="dashboard-grid">
+      <section className="panel form-panel command-panel">
+        <div className="panel-heading">
+          <div>
+            <span className="section-kicker">Быстрая операция</span>
+            <h2>Новый расход</h2>
+          </div>
+          <button className="soft-button" type="button" onClick={handleSetup}>
+            <Plus size={16} />
+            Лист
+          </button>
+        </div>
+
+        <form className="expense-form" onSubmit={handleSubmit}>
+          <label>
+            Дата
+            <input
+              type="date"
+              value={form.date}
+              onChange={(event) =>
+                setForm((current) => ({ ...current, date: event.target.value }))
+              }
+              required
+            />
+          </label>
+          <label>
+            Сумма
+            <input
+              type="number"
+              inputMode="decimal"
+              min="1"
+              step="1"
+              value={form.amount || ""}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  amount: Number(event.target.value),
+                }))
+              }
+              required
+            />
+          </label>
+          <label>
+            Категория
+            <select
+              value={form.category}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  category: event.target.value,
+                }))
+              }
+            >
+              {DEFAULT_CATEGORIES.map((category) => (
+                <option key={category}>{category}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Комната
+            <select
+              value={form.room}
+              onChange={(event) =>
+                setForm((current) => ({ ...current, room: event.target.value }))
+              }
+            >
+              {DEFAULT_ROOMS.map((room) => (
+                <option key={room}>{room}</option>
+              ))}
+            </select>
+          </label>
+          <label className="description-field">
+            Описание
+            <textarea
+              rows={3}
+              value={form.description}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  description: event.target.value,
+                }))
+              }
+              required
+            />
+          </label>
+          <label>
+            Контрагент
+            <input
+              value={form.vendor}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  vendor: event.target.value,
+                }))
+              }
+              placeholder="Сергей, Леруа, Авито"
+            />
+          </label>
+          <label>
+            Статус
+            <select
+              value={form.status}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  status: event.target.value as ExpenseInput["status"],
+                }))
+              }
+            >
+              <option value="paid">Оплачено</option>
+              <option value="planned">План</option>
+              <option value="pending">Ожидает</option>
+            </select>
+          </label>
+          <button className="primary-button save-button" type="submit" disabled={isSaving}>
+            {isSaving ? <Loader2 className="spin" size={18} /> : <Save size={18} />}
+            Сохранить
+          </button>
+        </form>
+
+        {(message || error) && (
+          <div className={error ? "notice error" : "notice"}>
+            {error ? <AlertCircle size={16} /> : <Check size={16} />}
+            {error || message}
+          </div>
+        )}
+      </section>
+
       <section className="summary-band">
         <KpiCard
           icon={<CircleDollarSign size={20} />}
@@ -273,130 +400,6 @@ export default function FinanceDashboard() {
             ))}
           </div>
         </div>
-      </section>
-
-      <section className="panel form-panel">
-        <div className="panel-heading">
-          <h2>Новый расход</h2>
-          <button className="soft-button" type="button" onClick={handleSetup}>
-            <Plus size={16} />
-            Лист
-          </button>
-        </div>
-
-        <form className="expense-form" onSubmit={handleSubmit}>
-          <label>
-            Дата
-            <input
-              type="date"
-              value={form.date}
-              onChange={(event) =>
-                setForm((current) => ({ ...current, date: event.target.value }))
-              }
-              required
-            />
-          </label>
-          <label>
-            Сумма
-            <input
-              type="number"
-              inputMode="decimal"
-              min="1"
-              step="1"
-              value={form.amount || ""}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  amount: Number(event.target.value),
-                }))
-              }
-              required
-            />
-          </label>
-          <label>
-            Категория
-            <select
-              value={form.category}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  category: event.target.value,
-                }))
-              }
-            >
-              {DEFAULT_CATEGORIES.map((category) => (
-                <option key={category}>{category}</option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Комната
-            <select
-              value={form.room}
-              onChange={(event) =>
-                setForm((current) => ({ ...current, room: event.target.value }))
-              }
-            >
-              {DEFAULT_ROOMS.map((room) => (
-                <option key={room}>{room}</option>
-              ))}
-            </select>
-          </label>
-          <label className="span-2">
-            Описание
-            <textarea
-              rows={3}
-              value={form.description}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  description: event.target.value,
-                }))
-              }
-              required
-            />
-          </label>
-          <label>
-            Контрагент
-            <input
-              value={form.vendor}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  vendor: event.target.value,
-                }))
-              }
-              placeholder="Сергей, Леруа, Авито"
-            />
-          </label>
-          <label>
-            Статус
-            <select
-              value={form.status}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  status: event.target.value as ExpenseInput["status"],
-                }))
-              }
-            >
-              <option value="paid">Оплачено</option>
-              <option value="planned">План</option>
-              <option value="pending">Ожидает</option>
-            </select>
-          </label>
-          <button className="primary-button span-2" type="submit" disabled={isSaving}>
-            {isSaving ? <Loader2 className="spin" size={18} /> : <Save size={18} />}
-            Сохранить
-          </button>
-        </form>
-
-        {(message || error) && (
-          <div className={error ? "notice error" : "notice"}>
-            {error ? <AlertCircle size={16} /> : <Check size={16} />}
-            {error || message}
-          </div>
-        )}
       </section>
 
       <section className="panel recent-panel wide">
