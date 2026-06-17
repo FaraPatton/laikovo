@@ -193,15 +193,27 @@ export default function FinanceDashboard() {
         <div className="chart-box">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={summary?.byMonth ?? []}>
-              <CartesianGrid stroke="#e5e0d6" vertical={false} />
-              <XAxis dataKey="month" tickLine={false} axisLine={false} />
+              <CartesianGrid stroke="var(--chart-grid)" vertical={false} />
+              <XAxis
+                dataKey="month"
+                tick={{ fill: "var(--muted)", fontSize: 12 }}
+                tickLine={false}
+                axisLine={false}
+              />
               <YAxis
                 tickLine={false}
                 axisLine={false}
+                tick={{ fill: "var(--muted)", fontSize: 12 }}
                 tickFormatter={(value) => `${Math.round(Number(value) / 1000)}к`}
                 width={46}
               />
               <Tooltip
+                contentStyle={{
+                  background: "var(--surface)",
+                  border: "1px solid var(--line)",
+                  borderRadius: 8,
+                  color: "var(--ink)",
+                }}
                 formatter={(value) => formatRub(Number(value))}
                 labelFormatter={(label) => `Месяц: ${label}`}
               />
@@ -234,7 +246,15 @@ export default function FinanceDashboard() {
                     />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value) => formatRub(Number(value))} />
+                <Tooltip
+                  contentStyle={{
+                    background: "var(--surface)",
+                    border: "1px solid var(--line)",
+                    borderRadius: 8,
+                    color: "var(--ink)",
+                  }}
+                  formatter={(value) => formatRub(Number(value))}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>

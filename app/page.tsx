@@ -1,5 +1,6 @@
 import { Building2 } from "lucide-react";
 import FinanceDashboard from "@/app/components/finance-dashboard";
+import ThemeToggle from "@/app/components/theme-toggle";
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
             <h1>Финансы ремонта</h1>
           </div>
         </div>
+        <ThemeToggle />
       </header>
 
       <FinanceDashboard />
