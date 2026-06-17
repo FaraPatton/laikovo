@@ -7,5 +7,6 @@ out
 dist
 coverage
 *.log
+tsconfig.tsbuildinfo
 work
 outputs
