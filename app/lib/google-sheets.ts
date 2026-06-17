@@ -1,5 +1,6 @@
 import { Expense, ExpenseInput, FinanceSummary } from "@/app/lib/finance-types";
 import { monthKey } from "@/app/lib/format";
+import { getGoogleAccessToken } from "@/app/lib/google-service-account";
 
 const SHEETS_API = "https://sheets.googleapis.com/v4/spreadsheets";
 const DEFAULT_LEGACY_SHEET = "Ремонт";
@@ -194,7 +195,8 @@ async function getValues(accessToken: string, range: string) {
   );
 }
 
-export async function ensureOperationsSheet(accessToken: string) {
+export async function ensureOperationsSheet() {
+  const accessToken = await getGoogleAccessToken();
   const meta = await googleFetch<SpreadsheetMeta>(
     accessToken,
     "?fields=sheets.properties.title",
@@ -237,11 +239,9 @@ export async function ensureOperationsSheet(accessToken: string) {
   );
 }
 
-export async function appendExpense(
-  accessToken: string,
-  input: ExpenseInput,
-) {
-  await ensureOperationsSheet(accessToken);
+export async function appendExpense(input: ExpenseInput) {
+  const accessToken = await getGoogleAccessToken();
+  await ensureOperationsSheet();
 
   const now = new Date().toISOString();
   const range = `${operationsSheetName()}!A:J`;
@@ -274,7 +274,8 @@ export async function appendExpense(
   );
 }
 
-export async function readExpenses(accessToken: string) {
+export async function readExpenses() {
+  const accessToken = await getGoogleAccessToken();
   const [legacy, operations] = await Promise.allSettled([
     getValues(accessToken, `${legacySheetName()}!A1:P1000`),
     getValues(accessToken, `${operationsSheetName()}!A1:J2000`),

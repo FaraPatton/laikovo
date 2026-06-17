@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { requireAuthedSession } from "@/app/lib/auth-guard";
 import { appendExpense } from "@/app/lib/google-sheets";
 import { ExpenseInput } from "@/app/lib/finance-types";
 
@@ -16,12 +15,6 @@ function validateExpenseInput(body: Partial<ExpenseInput>) {
 }
 
 export async function POST(request: Request) {
-  const session = await requireAuthedSession();
-
-  if (!session?.accessToken) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   const body = (await request.json()) as Partial<ExpenseInput>;
   const validationError = validateExpenseInput(body);
 
@@ -30,7 +23,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    await appendExpense(session.accessToken, body as ExpenseInput);
+    await appendExpense(body as ExpenseInput);
     return NextResponse.json({ ok: true });
   } catch (error) {
     return NextResponse.json(
