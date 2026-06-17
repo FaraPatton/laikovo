@@ -69,6 +69,35 @@ button {
   line-height: 1.55;
 }
 
+.pin-page {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  padding: 24px;
+}
+
+.pin-panel {
+  display: grid;
+  width: min(100%, 420px);
+  gap: 22px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.pin-copy {
+  margin-top: 10px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.pin-form {
+  display: grid;
+  gap: 12px;
+}
+
 .brand-mark {
   display: grid;
   width: 52px;

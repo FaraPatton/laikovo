@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { appendExpense } from "@/app/lib/google-sheets";
 import { ExpenseInput } from "@/app/lib/finance-types";
+import { isPinAuthorized } from "@/app/lib/pin-auth";
 
 function validateExpenseInput(body: Partial<ExpenseInput>) {
   if (!body.date || !body.description || !body.category) {
@@ -15,6 +16,10 @@ function validateExpenseInput(body: Partial<ExpenseInput>) {
 }
 
 export async function POST(request: Request) {
+  if (!(await isPinAuthorized())) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const body = (await request.json()) as Partial<ExpenseInput>;
   const validationError = validateExpenseInput(body);
 
