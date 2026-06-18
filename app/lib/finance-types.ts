@@ -1,6 +1,8 @@
-export type ExpenseSource = "legacy" | "operations";
+import type { ExpenseStatus } from "@/app/lib/expense-schema";
 
-export type ExpenseStatus = "paid" | "planned" | "pending";
+export type { ExpenseInput, ExpenseStatus } from "@/app/lib/expense-schema";
+
+export type ExpenseSource = "legacy" | "operations";
 
 export type Expense = {
   id: string;
@@ -28,16 +30,6 @@ export type FinanceSummary = {
   byMonth: Array<{ month: string; amount: number }>;
   recentExpenses: Expense[];
   expenses: Expense[];
-};
-
-export type ExpenseInput = {
-  date: string;
-  description: string;
-  amount: number;
-  category: string;
-  room?: string;
-  vendor?: string;
-  status?: ExpenseStatus;
 };
 
 export const DEFAULT_CATEGORIES = [

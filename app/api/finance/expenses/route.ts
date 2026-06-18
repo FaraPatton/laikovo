@@ -1,34 +1,32 @@
 import { NextResponse } from "next/server";
+import { expenseInputSchema } from "@/app/lib/expense-schema";
 import { appendExpense } from "@/app/lib/google-sheets";
-import { ExpenseInput } from "@/app/lib/finance-types";
 import { isPinAuthorized } from "@/app/lib/pin-auth";
-
-function validateExpenseInput(body: Partial<ExpenseInput>) {
-  if (!body.date || !body.description || !body.category) {
-    return "Дата, описание и категория обязательны.";
-  }
-
-  if (typeof body.amount !== "number" || body.amount <= 0) {
-    return "Сумма должна быть положительным числом.";
-  }
-
-  return null;
-}
 
 export async function POST(request: Request) {
   if (!(await isPinAuthorized())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = (await request.json()) as Partial<ExpenseInput>;
-  const validationError = validateExpenseInput(body);
+  let body: unknown;
 
-  if (validationError) {
-    return NextResponse.json({ error: validationError }, { status: 400 });
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Некорректный JSON." }, { status: 400 });
+  }
+
+  const result = expenseInputSchema.safeParse(body);
+
+  if (!result.success) {
+    return NextResponse.json(
+      { error: result.error.issues[0]?.message ?? "Некорректные данные." },
+      { status: 400 },
+    );
   }
 
   try {
-    await appendExpense(body as ExpenseInput);
+    await appendExpense(result.data);
     return NextResponse.json({ ok: true });
   } catch (error) {
     return NextResponse.json(
