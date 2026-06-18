@@ -31,18 +31,9 @@ import {
   FinanceSummary,
 } from "@/app/lib/finance-types";
 import { formatDate, formatRub } from "@/app/lib/format";
+import { useExpenseFormStore } from "@/app/store/expense-form-store";
 
 const chartColors = ["#70e1b8", "#f6b860", "#83b7ff", "#c79cff", "#f07588"];
-
-const emptyForm: ExpenseInput = {
-  date: new Date().toISOString().slice(0, 10),
-  description: "",
-  amount: 0,
-  category: "Прочее",
-  room: "Общее",
-  vendor: "",
-  status: "paid",
-};
 
 export default function FinanceDashboard() {
   const [summary, setSummary] = useState<FinanceSummary | null>(null);
@@ -50,7 +41,9 @@ export default function FinanceDashboard() {
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [form, setForm] = useState<ExpenseInput>(emptyForm);
+  const form = useExpenseFormStore((state) => state.form);
+  const updateForm = useExpenseFormStore((state) => state.updateForm);
+  const resetForm = useExpenseFormStore((state) => state.resetForm);
 
   async function loadSummary() {
     setIsLoading(true);
@@ -136,7 +129,7 @@ export default function FinanceDashboard() {
       }
 
       setMessage("Расход добавлен.");
-      setForm({ ...emptyForm, date: form.date });
+      resetForm();
       await loadSummary();
     } catch (saveError) {
       setError(
@@ -178,9 +171,7 @@ export default function FinanceDashboard() {
             <input
               type="date"
               value={form.date}
-              onChange={(event) =>
-                setForm((current) => ({ ...current, date: event.target.value }))
-              }
+              onChange={(event) => updateForm({ date: event.target.value })}
               required
             />
           </label>
@@ -193,10 +184,7 @@ export default function FinanceDashboard() {
               step="1"
               value={form.amount || ""}
               onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  amount: Number(event.target.value),
-                }))
+                updateForm({ amount: Number(event.target.value) })
               }
               required
             />
@@ -205,12 +193,7 @@ export default function FinanceDashboard() {
             Категория
             <select
               value={form.category}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  category: event.target.value,
-                }))
-              }
+              onChange={(event) => updateForm({ category: event.target.value })}
             >
               {DEFAULT_CATEGORIES.map((category) => (
                 <option key={category}>{category}</option>
@@ -221,9 +204,7 @@ export default function FinanceDashboard() {
             Комната
             <select
               value={form.room}
-              onChange={(event) =>
-                setForm((current) => ({ ...current, room: event.target.value }))
-              }
+              onChange={(event) => updateForm({ room: event.target.value })}
             >
               {DEFAULT_ROOMS.map((room) => (
                 <option key={room}>{room}</option>
@@ -236,10 +217,7 @@ export default function FinanceDashboard() {
               rows={3}
               value={form.description}
               onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  description: event.target.value,
-                }))
+                updateForm({ description: event.target.value })
               }
               required
             />
@@ -248,12 +226,7 @@ export default function FinanceDashboard() {
             Контрагент
             <input
               value={form.vendor}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  vendor: event.target.value,
-                }))
-              }
+              onChange={(event) => updateForm({ vendor: event.target.value })}
               placeholder="Сергей, Леруа, Авито"
             />
           </label>
@@ -262,10 +235,9 @@ export default function FinanceDashboard() {
             <select
               value={form.status}
               onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
+                updateForm({
                   status: event.target.value as ExpenseInput["status"],
-                }))
+                })
               }
             >
               <option value="paid">Оплачено</option>
