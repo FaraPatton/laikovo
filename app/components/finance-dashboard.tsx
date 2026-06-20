@@ -24,6 +24,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { apiFetch } from "@/app/lib/api-contract";
 import {
   DEFAULT_CATEGORIES,
   DEFAULT_ROOMS,
@@ -50,14 +51,9 @@ export default function FinanceDashboard() {
     setError(null);
 
     try {
-      const response = await fetch("/api/finance/summary", {
+      const data = await apiFetch<FinanceSummary>("/api/finance/summary", {
         cache: "no-store",
       });
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Не удалось загрузить данные.");
-      }
 
       setSummary(data);
     } catch (loadError) {
@@ -85,12 +81,7 @@ export default function FinanceDashboard() {
     setError(null);
 
     try {
-      const response = await fetch("/api/finance/setup", { method: "POST" });
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Не удалось подготовить лист.");
-      }
+      await apiFetch<null>("/api/finance/setup", { method: "POST" });
 
       setMessage("Лист Операции готов.");
       await loadSummary();
@@ -110,7 +101,7 @@ export default function FinanceDashboard() {
     setError(null);
 
     try {
-      const response = await fetch("/api/finance/expenses", {
+      await apiFetch<null>("/api/finance/expenses", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -122,11 +113,6 @@ export default function FinanceDashboard() {
           vendor: form.vendor || undefined,
         }),
       });
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Не удалось сохранить расход.");
-      }
 
       setMessage("Расход добавлен.");
       resetForm();

@@ -48,8 +48,8 @@ describe("FinanceDashboard", () => {
         ok: true,
         json: async () =>
           String(input).includes("/api/finance/summary")
-            ? summary
-            : { ok: true },
+            ? { ok: true, data: summary }
+            : { ok: true, data: null },
       }),
     );
     vi.stubGlobal("fetch", fetchMock);
