@@ -3,12 +3,15 @@ import { FinanceSummary } from "@/app/lib/finance-types";
 
 const mocks = vi.hoisted(() => ({
   isPinAuthorized: vi.fn(),
-  readExpenses: vi.fn(),
+  list: vi.fn(),
   summarizeExpenses: vi.fn(),
 }));
 
-vi.mock("@/app/lib/google-sheets", () => ({
-  readExpenses: mocks.readExpenses,
+vi.mock("@/app/repositories", () => ({
+  expenseRepository: { list: mocks.list },
+}));
+
+vi.mock("@/app/lib/finance-summary", () => ({
   summarizeExpenses: mocks.summarizeExpenses,
 }));
 
@@ -30,7 +33,7 @@ const summary: FinanceSummary = {
 describe("GET /api/finance/summary", () => {
   beforeEach(() => {
     mocks.isPinAuthorized.mockResolvedValue(true);
-    mocks.readExpenses.mockResolvedValue([]);
+    mocks.list.mockResolvedValue([]);
     mocks.summarizeExpenses.mockReturnValue(summary);
   });
 
@@ -49,7 +52,7 @@ describe("GET /api/finance/summary", () => {
 
   it("maps storage failures to a safe upstream error", async () => {
     vi.spyOn(console, "error").mockImplementation(() => undefined);
-    mocks.readExpenses.mockRejectedValue(new Error("Private Google error"));
+    mocks.list.mockRejectedValue(new Error("Private Google error"));
 
     const response = await GET();
 

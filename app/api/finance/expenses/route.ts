@@ -1,7 +1,7 @@
 import { apiFailure, apiSuccess } from "@/app/lib/api-response";
 import { expenseInputSchema } from "@/app/lib/expense-schema";
-import { appendExpense } from "@/app/lib/google-sheets";
 import { isPinAuthorized } from "@/app/lib/pin-auth";
+import { expenseRepository } from "@/app/repositories";
 
 export async function POST(request: Request) {
   if (!(await isPinAuthorized())) {
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    await appendExpense(result.data);
+    await expenseRepository.append(result.data);
     return apiSuccess(null);
   } catch (error) {
     console.error("Unable to append expense", error);

@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-  appendExpense: vi.fn(),
+  append: vi.fn(),
   isPinAuthorized: vi.fn(),
 }));
 
-vi.mock("@/app/lib/google-sheets", () => ({
-  appendExpense: mocks.appendExpense,
+vi.mock("@/app/repositories", () => ({
+  expenseRepository: { append: mocks.append },
 }));
 
 vi.mock("@/app/lib/pin-auth", () => ({
@@ -33,7 +33,7 @@ function request(body: string) {
 describe("POST /api/finance/expenses", () => {
   beforeEach(() => {
     mocks.isPinAuthorized.mockResolvedValue(true);
-    mocks.appendExpense.mockResolvedValue(undefined);
+    mocks.append.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -51,7 +51,7 @@ describe("POST /api/finance/expenses", () => {
       ok: false,
       error: { code: "UNAUTHORIZED" },
     });
-    expect(mocks.appendExpense).not.toHaveBeenCalled();
+    expect(mocks.append).not.toHaveBeenCalled();
   });
 
   it("rejects malformed JSON", async () => {
@@ -74,7 +74,7 @@ describe("POST /api/finance/expenses", () => {
       ok: false,
       error: { code: "VALIDATION_ERROR" },
     });
-    expect(mocks.appendExpense).not.toHaveBeenCalled();
+    expect(mocks.append).not.toHaveBeenCalled();
   });
 
   it("normalizes and stores a valid expense", async () => {
@@ -89,7 +89,7 @@ describe("POST /api/finance/expenses", () => {
 
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({ ok: true, data: null });
-    expect(mocks.appendExpense).toHaveBeenCalledWith({
+    expect(mocks.append).toHaveBeenCalledWith({
       ...validExpense,
       description: "Светильники",
       status: "paid",
@@ -98,7 +98,7 @@ describe("POST /api/finance/expenses", () => {
 
   it("hides upstream details behind the public error contract", async () => {
     vi.spyOn(console, "error").mockImplementation(() => undefined);
-    mocks.appendExpense.mockRejectedValue(
+    mocks.append.mockRejectedValue(
       new Error("Google Sheets API error 403: private details"),
     );
 
