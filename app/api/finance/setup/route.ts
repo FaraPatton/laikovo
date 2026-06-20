@@ -1,6 +1,6 @@
 import { apiFailure, apiSuccess } from "@/app/lib/api-response";
-import { ensureOperationsSheet } from "@/app/lib/google-sheets";
 import { isPinAuthorized } from "@/app/lib/pin-auth";
+import { expenseRepository } from "@/app/repositories";
 
 export async function POST() {
   if (!(await isPinAuthorized())) {
@@ -8,7 +8,7 @@ export async function POST() {
   }
 
   try {
-    await ensureOperationsSheet();
+    await expenseRepository.setup();
     return apiSuccess(null);
   } catch (error) {
     console.error("Unable to prepare operations sheet", error);

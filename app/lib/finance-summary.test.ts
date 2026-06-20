@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { summarizeExpenses } from "@/app/lib/google-sheets";
+import { summarizeExpenses } from "@/app/lib/finance-summary";
 import { Expense } from "@/app/lib/finance-types";
 
 function expense(overrides: Partial<Expense> = {}): Expense {
